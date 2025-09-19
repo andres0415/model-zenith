@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -19,35 +19,63 @@ import {
 export const Dashboard: React.FC = () => {
   const [openDialog, setOpenDialog] = useState<'total' | 'production' | 'review' | 'risk' | null>(null);
 
-  // Mock data - in real app this would come from API
-  const metrics = {
-    totalModels: 87,
-    modelsInProduction: 45,
-    modelsNeedingReview: 12,
-    highRiskModels: 5,
-    averageAccuracy: 89.5,
-    modelsCreatedThisMonth: 8
-  };
+  // Leer modelos desde la carpeta public
+  const [allModels, setAllModels] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState({
+    totalModels: 0,
+    modelsInProduction: 0,
+    modelsNeedingReview: 0,
+    highRiskModels: 0,
+    averageAccuracy: 0,
+    modelsCreatedThisMonth: 0
+  });
 
-  // All models data
-  const allModels = [
-    { id: '1', name: 'BAC_VALOR-CLIENTE-CRI-HIP-12M_PRED_XGB_M', status: 'production', accuracy: 92.5, lastUpdate: '2024-01-15', risk: 'low' },
-    { id: '2', name: 'CHURN_PREDICTION_RF_V2', status: 'testing', accuracy: 87.2, lastUpdate: '2024-01-14', risk: 'medium' },
-    { id: '3', name: 'CREDIT_SCORE_LGBM_PROD', status: 'production', accuracy: 94.1, lastUpdate: '2024-01-13', risk: 'low' },
-    { id: '4', name: 'FRAUD_DETECTION_NN_V3', status: 'production', accuracy: 96.8, lastUpdate: '2024-01-12', risk: 'low' },
-    { id: '5', name: 'RISK_ASSESSMENT_XGB', status: 'development', accuracy: 78.3, lastUpdate: '2024-01-11', risk: 'high' },
-    { id: '6', name: 'CUSTOMER_SEGMENTATION_KM', status: 'production', accuracy: 85.9, lastUpdate: '2024-01-10', risk: 'medium' },
-    { id: '7', name: 'PRICE_OPTIMIZATION_LR', status: 'testing', accuracy: 82.1, lastUpdate: '2024-01-09', risk: 'medium' },
-    { id: '8', name: 'ANOMALY_DETECTION_IF', status: 'production', accuracy: 91.4, lastUpdate: '2024-01-08', risk: 'low' },
-    { id: '9', name: 'SENTIMENT_ANALYSIS_BERT', status: 'review', accuracy: 76.8, lastUpdate: '2024-01-07', risk: 'high' },
-    { id: '10', name: 'RECOMMENDATION_ENGINE_CF', status: 'production', accuracy: 88.6, lastUpdate: '2024-01-06', risk: 'low' }
-  ];
+  useEffect(() => {
+    // Listado de archivos JSON en public
+    const modelFiles = [
+      'ModelProperties_bac_clvt (1).json',
+      'ModelProperties_bac_clvt_2.json',
+      'ModelProperties_bac_clvt_3.json',
+      'ModelProperties_bac_clvt_4.json',
+      'ModelProperties_bac_clvt_5.json',
+      'ModelProperties_bac_clvt_6.json'
+    ];
+
+    Promise.all(
+      modelFiles.map(file =>
+        fetch(`/public/${file}`)
+          .then(res => res.json())
+          .catch(() => null)
+      )
+    ).then(models => {
+      const validModels = models.filter(Boolean);
+      setAllModels(validModels);
+
+      // Calcular métricas
+      const totalModels = validModels.length;
+      const modelsInProduction = validModels.filter(m => m.status === 'production').length;
+      const modelsNeedingReview = validModels.filter(m => m.status === 'review').length;
+      const highRiskModels = validModels.filter(m => m.risk === 'high').length;
+      const averageAccuracy = 0; // No hay campo accuracy en los JSON actuales
+      const modelsCreatedThisMonth = validModels.filter(m => {
+        const created = new Date(m.creationTimeStamp);
+        const now = new Date();
+        return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      }).length;
+      setMetrics({
+        totalModels,
+        modelsInProduction,
+        modelsNeedingReview,
+        highRiskModels,
+        averageAccuracy,
+        modelsCreatedThisMonth
+      });
+    });
+  }, []);
 
   const recentModels = allModels.slice(0, 3);
-
-  // Filtered model lists
   const productionModels = allModels.filter(model => model.status === 'production');
-  const reviewModels = allModels.filter(model => model.status === 'review' || model.accuracy < 80);
+  const reviewModels = allModels.filter(model => model.status === 'review');
   const riskModels = allModels.filter(model => model.risk === 'high');
 
   const getStatusColor = (status: string) => {
@@ -114,7 +142,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               +{metrics.modelsCreatedThisMonth} este mes
             </p>
-            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('total')}>Ver modelos</Button>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpenDialog('total')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
@@ -132,7 +160,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               {((metrics.modelsInProduction / metrics.totalModels) * 100).toFixed(1)}% del total
             </p>
-            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('production')}>Ver modelos</Button>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpenDialog('production')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
@@ -150,7 +178,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               Próximas revisiones programadas
             </p>
-            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('review')}>Ver modelos</Button>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpenDialog('review')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
@@ -168,7 +196,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               Requieren atención inmediata
             </p>
-            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('risk')}>Ver modelos</Button>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpenDialog('risk')}>Ver modelos</Button>
           </CardContent>
         </Card>
       </div>
@@ -236,7 +264,7 @@ export const Dashboard: React.FC = () => {
                     <Badge variant="secondary" className={getRiskColor(model.risk)}>
                       {model.risk}
                     </Badge>
-                    <Button asChild variant="outline" size="xs">
+                    <Button asChild variant="outline" size="sm">
                       <Link to={`/models/${model.id}`}>Ver</Link>
                     </Button>
                   </div>

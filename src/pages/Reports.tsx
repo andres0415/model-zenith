@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -70,24 +70,54 @@ export const Reports: React.FC = () => {
     });
   };
 
-  // Mock data
-  const riskAssessment = [
-    { model: 'CREDIT_SCORE_LGBM', risk: 'high', reason: 'Precisión por debajo del 80%', lastReview: '2024-01-10' },
-    { model: 'CHURN_PREDICTION_RF', risk: 'medium', reason: 'Deriva de datos detectada', lastReview: '2024-01-12' },
-    { model: 'FRAUD_DETECTION_NN', risk: 'low', reason: 'Funcionando correctamente', lastReview: '2024-01-15' },
-  ];
+  // Leer modelos desde la carpeta public
+  const [models, setModels] = useState<any[]>([]);
+  const [modelHealth, setModelHealth] = useState({ healthy: 0, warning: 0, critical: 0 });
+  const [riskAssessment, setRiskAssessment] = useState<any[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const performanceTrends = [
-    { month: 'Enero', accuracy: 89.5, models: 87 },
-    { month: 'Febrero', accuracy: 91.2, models: 92 },
-    { month: 'Marzo', accuracy: 88.7, models: 95 },
-  ];
-
-  const modelHealth = {
-    healthy: 78,
-    warning: 12,
-    critical: 5
-  };
+  useEffect(() => {
+    const modelFiles = [
+      'ModelProperties_bac_clvt (1).json',
+      'ModelProperties_bac_clvt_2.json',
+      'ModelProperties_bac_clvt_3.json',
+      'ModelProperties_bac_clvt_4.json',
+      'ModelProperties_bac_clvt_5.json',
+      'ModelProperties_bac_clvt_6.json'
+    ];
+    Promise.all(
+      modelFiles.map(file =>
+        fetch(`/${file}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`No se pudo cargar ${file}`);
+            return res.json();
+          })
+          .catch((err) => {
+            setLoadError(`Error al cargar modelos: ${err.message}`);
+            return null;
+          })
+      )
+    ).then(models => {
+      const validModels = models.filter(Boolean);
+      setModels(validModels);
+      if (validModels.length === 0) {
+        setLoadError('No se encontraron modelos válidos en la carpeta public.');
+      }
+      // Simulación de salud: todos saludables si existen
+      setModelHealth({
+        healthy: validModels.length,
+        warning: 0,
+        critical: 0
+      });
+      // Simulación de riesgo: todos bajo
+      setRiskAssessment(validModels.map(m => ({
+        model: m.name,
+        risk: 'low',
+        reason: 'Funcionando correctamente',
+        lastReview: m.modifiedTimeStamp
+      })));
+    });
+  }, []);
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -100,6 +130,11 @@ export const Reports: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {loadError && (
+        <div className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-300 mb-4">
+          {loadError}
+        </div>
+      )}
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
