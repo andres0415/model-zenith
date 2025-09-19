@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -17,6 +18,58 @@ import {
 } from 'lucide-react';
 
 export const Reports: React.FC = () => {
+  const { toast } = useToast();
+
+  // Handler functions
+  const handleFilter = () => {
+    toast({
+      title: "Filtros",
+      description: "Función de filtros próximamente disponible",
+    });
+  };
+
+  const handleDateRange = () => {
+    toast({
+      title: "Rango de Fechas", 
+      description: "Selector de fechas próximamente disponible",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exportando...",
+      description: "Generando reporte en formato PDF",
+    });
+  };
+
+  const handleViewDetails = (modelName: string) => {
+    toast({
+      title: "Ver Detalles",
+      description: `Abriendo detalles del modelo ${modelName}`,
+    });
+  };
+
+  const handleViewList = () => {
+    toast({
+      title: "Lista de Modelos Críticos",
+      description: "Mostrando modelos que requieren recalibración",
+    });
+  };
+
+  const handleScheduleReview = () => {
+    toast({
+      title: "Revisión Programada",
+      description: "Revisión de deriva de datos programada para mañana",
+    });
+  };
+
+  const handleAssignTask = () => {
+    toast({
+      title: "Tarea Asignada",
+      description: "Actualización de documentación asignada al equipo",
+    });
+  };
+
   // Mock data
   const riskAssessment = [
     { model: 'CREDIT_SCORE_LGBM', risk: 'high', reason: 'Precisión por debajo del 80%', lastReview: '2024-01-10' },
@@ -56,15 +109,15 @@ export const Reports: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleFilter}>
             <Filter className="h-4 w-4 mr-2" />
             Filtros
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleDateRange}>
             <Calendar className="h-4 w-4 mr-2" />
             Rango de Fechas
           </Button>
-          <Button size="sm" className="bg-gradient-primary hover:opacity-90">
+          <Button size="sm" className="bg-gradient-primary hover:opacity-90" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>
@@ -256,7 +309,7 @@ export const Reports: React.FC = () => {
                       <Badge className={getRiskColor(item.risk)}>
                         {item.risk.toUpperCase()}
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => handleViewDetails(item.model)}>
                         Ver Detalles
                       </Button>
                     </div>
@@ -321,7 +374,7 @@ export const Reports: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       5 modelos necesitan recalibración inmediata
                     </p>
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-2" onClick={handleViewList}>
                       Ver Lista
                     </Button>
                   </div>
@@ -331,7 +384,7 @@ export const Reports: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       Verificar calidad de datos en 8 modelos
                     </p>
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-2" onClick={handleScheduleReview}>
                       Programar Revisión
                     </Button>
                   </div>
@@ -341,7 +394,7 @@ export const Reports: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       12 modelos requieren documentación actualizada
                     </p>
-                    <Button variant="outline" size="sm" className="mt-2">
+                    <Button variant="outline" size="sm" className="mt-2" onClick={handleAssignTask}>
                       Asignar Tarea
                     </Button>
                   </div>
