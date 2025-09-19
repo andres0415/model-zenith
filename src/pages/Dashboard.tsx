@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { 
   Database, 
   TrendingUp, 
@@ -14,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
+  const [openDialog, setOpenDialog] = useState<'total' | 'production' | 'review' | 'risk' | null>(null);
+
   // Mock data - in real app this would come from API
   const metrics = {
     totalModels: 87,
@@ -24,32 +28,26 @@ export const Dashboard: React.FC = () => {
     modelsCreatedThisMonth: 8
   };
 
-  const recentModels = [
-    {
-      id: '1',
-      name: 'BAC_VALOR-CLIENTE-CRI-HIP-12M_PRED_XGB_M',
-      status: 'production',
-      accuracy: 92.5,
-      lastUpdate: '2024-01-15',
-      risk: 'low'
-    },
-    {
-      id: '2', 
-      name: 'CHURN_PREDICTION_RF_V2',
-      status: 'testing',
-      accuracy: 87.2,
-      lastUpdate: '2024-01-14',
-      risk: 'medium'
-    },
-    {
-      id: '3',
-      name: 'CREDIT_SCORE_LGBM_PROD',
-      status: 'production',
-      accuracy: 94.1,
-      lastUpdate: '2024-01-13',
-      risk: 'low'
-    }
+  // All models data
+  const allModels = [
+    { id: '1', name: 'BAC_VALOR-CLIENTE-CRI-HIP-12M_PRED_XGB_M', status: 'production', accuracy: 92.5, lastUpdate: '2024-01-15', risk: 'low' },
+    { id: '2', name: 'CHURN_PREDICTION_RF_V2', status: 'testing', accuracy: 87.2, lastUpdate: '2024-01-14', risk: 'medium' },
+    { id: '3', name: 'CREDIT_SCORE_LGBM_PROD', status: 'production', accuracy: 94.1, lastUpdate: '2024-01-13', risk: 'low' },
+    { id: '4', name: 'FRAUD_DETECTION_NN_V3', status: 'production', accuracy: 96.8, lastUpdate: '2024-01-12', risk: 'low' },
+    { id: '5', name: 'RISK_ASSESSMENT_XGB', status: 'development', accuracy: 78.3, lastUpdate: '2024-01-11', risk: 'high' },
+    { id: '6', name: 'CUSTOMER_SEGMENTATION_KM', status: 'production', accuracy: 85.9, lastUpdate: '2024-01-10', risk: 'medium' },
+    { id: '7', name: 'PRICE_OPTIMIZATION_LR', status: 'testing', accuracy: 82.1, lastUpdate: '2024-01-09', risk: 'medium' },
+    { id: '8', name: 'ANOMALY_DETECTION_IF', status: 'production', accuracy: 91.4, lastUpdate: '2024-01-08', risk: 'low' },
+    { id: '9', name: 'SENTIMENT_ANALYSIS_BERT', status: 'review', accuracy: 76.8, lastUpdate: '2024-01-07', risk: 'high' },
+    { id: '10', name: 'RECOMMENDATION_ENGINE_CF', status: 'production', accuracy: 88.6, lastUpdate: '2024-01-06', risk: 'low' }
   ];
+
+  const recentModels = allModels.slice(0, 3);
+
+  // Filtered model lists
+  const productionModels = allModels.filter(model => model.status === 'production');
+  const reviewModels = allModels.filter(model => model.status === 'review' || model.accuracy < 80);
+  const riskModels = allModels.filter(model => model.risk === 'high');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -69,6 +67,26 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const getDialogTitle = (type: string) => {
+    switch (type) {
+      case 'total': return 'Todos los Modelos';
+      case 'production': return 'Modelos en Producción';
+      case 'review': return 'Modelos que Requieren Revisión';
+      case 'risk': return 'Modelos de Alto Riesgo';
+      default: return 'Modelos';
+    }
+  };
+
+  const getModelsList = (type: string) => {
+    switch (type) {
+      case 'total': return allModels;
+      case 'production': return productionModels;
+      case 'review': return reviewModels;
+      case 'risk': return riskModels;
+      default: return [];
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -81,7 +99,10 @@ export const Dashboard: React.FC = () => {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
+        <Card 
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+          onClick={() => setOpenDialog('total')}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total de Modelos
@@ -96,7 +117,10 @@ export const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
+        <Card 
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+          onClick={() => setOpenDialog('production')}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               En Producción
@@ -111,7 +135,10 @@ export const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
+        <Card 
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+          onClick={() => setOpenDialog('review')}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Requieren Revisión
@@ -126,7 +153,10 @@ export const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow">
+        <Card 
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
+          onClick={() => setOpenDialog('risk')}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Alto Riesgo
@@ -243,6 +273,44 @@ export const Dashboard: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Models Dialog */}
+      <Dialog open={!!openDialog} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{openDialog && getDialogTitle(openDialog)}</DialogTitle>
+            <DialogDescription>
+              Lista detallada de modelos en esta categoría
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {openDialog && getModelsList(openDialog).map((model) => (
+              <div key={model.id} className="flex items-center justify-between p-4 rounded-lg border border-border bg-background/50">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-foreground truncate">{model.name}</h4>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${getStatusColor(model.status)}`}></div>
+                      <span>{model.status}</span>
+                    </div>
+                    <span>Precisión: {model.accuracy}%</span>
+                    <span>Actualizado: {model.lastUpdate}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <Badge variant="secondary" className={getRiskColor(model.risk)}>
+                    {model.risk}
+                  </Badge>
+                  <Button variant="outline" size="sm">
+                    Ver Detalles
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
