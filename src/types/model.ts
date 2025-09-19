@@ -85,3 +85,79 @@ export interface ModelMetrics {
   averageAccuracy: number;
   modelsCreatedThisMonth: number;
 }
+
+// API Request/Response types
+export interface CreateModelRequest {
+  name: string;
+  description: string;
+  algorithm: string;
+  function: 'classification' | 'regression' | 'clustering' | 'recommendation' | 'generation';
+  modelType: 'python' | 'r' | 'scala' | 'java' | 'other';
+  scoreCodeType?: string;
+  modeler?: string;
+  trainCodeType?: string;
+  targetLevel?: 'nominal' | 'ordinal' | 'interval' | 'ratio';
+  tool?: string;
+  toolVersion?: string;
+  externalUrl?: string;
+  modelVersionName?: string;
+  ADL_ACRE?: string;
+  ADL_ARES?: string;
+  ADL_ARUS?: string;
+  DS_CAMD?: string;
+  DS_PRMD?: string;
+}
+
+export interface UpdateModelRequest extends Partial<CreateModelRequest> {
+  status?: 'development' | 'testing' | 'production' | 'deprecated';
+  accuracy?: number;
+  precision?: number;
+  recall?: number;
+  f1Score?: number;
+  rocAuc?: number;
+  mse?: number;
+  rmse?: number;
+  mae?: number;
+  r2Score?: number;
+  riskLevel?: 'low' | 'medium' | 'high';
+  needsRecalibration?: boolean;
+  lastBacktestDate?: string;
+  nextReviewDate?: string;
+}
+
+// Authentication API types
+export interface LoginResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+}
+
+// MLflow integration types
+export interface MLflowExperiment {
+  experiment_id: string;
+  name: string;
+  artifact_location: string;
+  lifecycle_stage: string;
+  creation_time: number;
+  last_update_time: number;
+}
+
+export interface MLflowRun {
+  info: {
+    run_id: string;
+    experiment_id: string;
+    status: string;
+    start_time: number;
+    end_time: number;
+    artifact_uri: string;
+  };
+  data: {
+    metrics: Record<string, number>;
+    params: Record<string, string>;
+    tags: Record<string, string>;
+  };
+}
