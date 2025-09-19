@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { ModelRegister } from "./pages/ModelRegister";
+import ModelDetail from "./pages/ModelDetail";
 import { Reports } from "./pages/Reports";
 import { Monitoring } from "./pages/Monitoring";
 import { Experiments } from "./pages/Experiments";
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/register" element={<ModelRegister />} />
+              <Route path="/models/:id" element={<ModelDetail />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/monitoring" element={<Monitoring />} />
               <Route path="/experiments" element={<Experiments />} />

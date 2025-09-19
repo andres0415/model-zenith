@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { 
   Database, 
   TrendingUp, 
@@ -100,8 +101,7 @@ export const Dashboard: React.FC = () => {
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card 
-          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
-          onClick={() => setOpenDialog('total')}
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow"
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -114,12 +114,12 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               +{metrics.modelsCreatedThisMonth} este mes
             </p>
+            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('total')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
         <Card 
-          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
-          onClick={() => setOpenDialog('production')}
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow"
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -132,12 +132,12 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               {((metrics.modelsInProduction / metrics.totalModels) * 100).toFixed(1)}% del total
             </p>
+            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('production')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
         <Card 
-          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
-          onClick={() => setOpenDialog('review')}
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow"
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -150,12 +150,12 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               Próximas revisiones programadas
             </p>
+            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('review')}>Ver modelos</Button>
           </CardContent>
         </Card>
 
         <Card 
-          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow cursor-pointer"
-          onClick={() => setOpenDialog('risk')}
+          className="bg-gradient-card shadow-soft hover:shadow-medium transition-shadow"
         >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -168,6 +168,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               Requieren atención inmediata
             </p>
+            <Button variant="outline" size="xs" className="mt-3" onClick={() => setOpenDialog('risk')}>Ver modelos</Button>
           </CardContent>
         </Card>
       </div>
@@ -221,11 +222,9 @@ export const Dashboard: React.FC = () => {
           <CardContent>
             <div className="space-y-4">
               {recentModels.map((model) => (
-                <div key={model.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                <div key={model.id} className="flex items-center justify-between gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {model.name}
-                    </p>
+                    <p className="text-sm font-medium text-foreground truncate">{model.name}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className={`w-2 h-2 rounded-full ${getStatusColor(model.status)}`}></div>
                       <span className="text-xs text-muted-foreground">
@@ -233,9 +232,14 @@ export const Dashboard: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <Badge variant="secondary" className={getRiskColor(model.risk)}>
-                    {model.risk}
-                  </Badge>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="secondary" className={getRiskColor(model.risk)}>
+                      {model.risk}
+                    </Badge>
+                    <Button asChild variant="outline" size="xs">
+                      <Link to={`/models/${model.id}`}>Ver</Link>
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -302,8 +306,8 @@ export const Dashboard: React.FC = () => {
                   <Badge variant="secondary" className={getRiskColor(model.risk)}>
                     {model.risk}
                   </Badge>
-                  <Button variant="outline" size="sm">
-                    Ver Detalles
+                  <Button asChild variant="outline" size="sm">
+                    <Link to={`/models/${model.id}`}>Ver Detalles</Link>
                   </Button>
                 </div>
               </div>
